@@ -28,6 +28,7 @@ def load_dataset():
 	testY = to_categorical(testY)
 	return trainX, trainY, testX, testY
 
+
 def prep_pixels(train, test):
 	# convert from integers to floats
 	train_norm = train.astype('float32')
@@ -38,20 +39,6 @@ def prep_pixels(train, test):
 	# return normalized images
 	return train_norm, test_norm
 
-# def define_model():
-# 	model = Sequential()
-# 	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', input_shape=(28, 28, 1)))
-# 	model.add(MaxPooling2D((2, 2)))
-# 	model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform'))
-# 	model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform'))
-# 	model.add(MaxPooling2D((2, 2)))
-# 	model.add(Flatten())
-# 	model.add(Dense(100, activation='relu', kernel_initializer='he_uniform'))
-# 	model.add(Dense(10, activation='softmax'))
-# 	# compile model
-# 	opt = SGD(learning_rate=0.01, momentum=0.9)
-# 	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
-# 	return model
 
 def run_test_harness():
     # load dataset
@@ -75,8 +62,12 @@ def run_test_harness():
 
     # fit model
     model.fit(trainX, trainY, epochs=10, batch_size=32, verbose=0)
+    test_loss, test_acc = model.evaluate(testX, testY)
+    print("test_loss : ", test_loss)
+    print("test_acc : ", test_acc)
     # save model
     model.save('final_model.h5')
+
 
 def process_InputImage(filename):
     # Load image, and make into Numpy array
@@ -100,10 +91,10 @@ def process_InputImage(filename):
     bbox = res.getbbox()
     print(bbox)
     y = list(bbox)
-    y[0] = y[0] - 50
-    y[1] = y[1] - 50
-    y[2] = y[2] + 50
-    y[3] = y[3] + 50
+    # y[0] = y[0] - 50
+    # y[1] = y[1] - 50
+    # y[2] = y[2] + 5
+    # y[3] = y[3] + 50
     bbox = tuple(y)
     print('Bounding box:',bbox)
 
@@ -122,46 +113,18 @@ def process_InputImage(filename):
     # # Threshold
     bw = bw.point( lambda p: 255 if p > threshold else 0 )
     bw = ImageOps.invert(bw)
+    bw = add_margin(bw, 50, 20, 50, 20, 0)
+    # bw = expand2square(bw, 0)
     bw.save(f'sample_bw.jpg')
 
-def process_InputImage1(filename):
-  image= cv2.imread(filename)
-  original_image= image
 
-  gray= cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-
-  gray = cv2.medianBlur(gray,7)
-
-  # blur = cv2.GaussianBlur(gray,(5,5),0)
-  # cv2.imwrite('blur.jpg', blur)
-  # ret ,thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-
-
-  thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,7,4)
-  kernel = np.ones((3,3), np.uint8)
-  thresh = cv2.erode(thresh, kernel, iterations=2)
-
-  cv2.imwrite('thresh.jpg', thresh)
-
-  edges= cv2.Canny(thresh, 50,200)
-
-
-  contours, hierarchy= cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-
-  sorted_contours= sorted(contours, key=cv2.contourArea, reverse= True)
-
-  print(len(sorted_contours))
-
-  for (i,c) in enumerate(sorted_contours):
-      x,y,w,h= cv2.boundingRect(c)
-      if i==0:
-        k = 5
-        cropped_contour= thresh[y-k:y+h+k, x-k:x+w+k]
-        image_name= 'sample_bw.jpg'
-        cropped_contour = cv2.bitwise_not(cropped_contour)
-        cv2.imwrite(image_name, cropped_contour)
-        break
+def add_margin(pil_img, top, right, bottom, left, color):
+    width, height = pil_img.size
+    new_width = width + right + left
+    new_height = height + top + bottom
+    result = Image.new(pil_img.mode, (new_width, new_height), color)
+    result.paste(pil_img, (left, top))
+    return result
 
 
 def load_image(filename):
@@ -171,7 +134,8 @@ def load_image(filename):
   img = img.astype('float32')
   img = img / 255.0
   return img
-     
+
+
 def run_example(file):
   if not os.path.isfile('final_model.h5'):
     print("Training the Model")
@@ -183,6 +147,7 @@ def run_example(file):
   digit = argmax(predict_value)
   print(digit)
   return digit
+
 
 if __name__ == "__main__":
   fileName = sys.argv[1]

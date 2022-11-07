@@ -10,20 +10,21 @@ import shutil
 from flask import Flask, request
 from werkzeug.utils import secure_filename
 
-from mnist_classification import run_example
+from mnist_classification import run_example, run_test_harness
 
 FILE_TYPES = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__)
 
-
 def check_file_type(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in FILE_TYPES
 
-@app.route('/test')
-def test():
-    return 'test'
+@app.route('/trainAndTestModel')
+def trainAndTest():
+    run_test_harness()
+    return 'Training and testing completed'
+
 
 @app.route('/uploadImage', methods=['POST'])
 def upload_file():
@@ -48,6 +49,7 @@ def upload_file():
         shutil.move(filename, os.path.join(os.getcwd(),'classification_results', category, filename))
 
         return f'classification successful : {category}'
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",port=5001)
