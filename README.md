@@ -1,4 +1,4 @@
-# Mobile_Computing_Project_MNIST
+# Mobile Computing Project MNIST
 
 ## Starting the Python Flask server
 - Run server.py
