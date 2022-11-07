@@ -3,7 +3,7 @@
 ## Starting the Python Flask server
 - Run server.py
 
-## Train and test the model
+## Training and testing the model
 - Send a GET request to the following endpoint: http://<Server IP>:<Server Port Number>/trainAndTestModel
 - Model information and testing results are displayed in the server console
 
