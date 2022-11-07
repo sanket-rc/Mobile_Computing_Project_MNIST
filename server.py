@@ -47,7 +47,7 @@ def upload_file():
 
         shutil.move(filename, os.path.join(os.getcwd(),'classification_results', category, filename))
 
-        return 'classification successful'
+        return f'classification successful : {category}'
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",port=5001)

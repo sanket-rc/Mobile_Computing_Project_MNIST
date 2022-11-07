@@ -91,7 +91,7 @@ def process_InputImage(filename):
     # Threshold image to pure black and white
     blk = np.array([0],  np.uint8)
     wht = np.array([255],np.uint8)
-    thr = np.where(na>100, blk, wht)
+    thr = np.where(na>120, blk, wht)
 
     # Go back to PIL Image from Numpy array
     res = Image.fromarray(thr)
@@ -102,7 +102,7 @@ def process_InputImage(filename):
     y = list(bbox)
     y[0] = y[0] - 50
     y[1] = y[1] - 50
-    y[2] = y[2] + 5
+    y[2] = y[2] + 50
     y[3] = y[3] + 50
     bbox = tuple(y)
     print('Bounding box:',bbox)
