@@ -70,31 +70,26 @@ def run_test_harness():
 
 
 def process_InputImage(filename):
-    # Load image, and make into Numpy array
+    # Open the image and convert into Numpy array
     im = Image.open(filename)
     na = np.array(im.convert('L'))
 
-    # Stretch the contrast to range 0..255 to maximize chances of splitting digits from background
+    # Stretch the contrast to range 0 to 255 to maximize chances of separating the digits from the background
     na = ((na.astype(np.float)-na.min())*255.0/(na.max()-na.min())).astype(np.uint8)
 
     print(f"max na value: {na.max()}")
 
-    # Threshold image to pure black and white
+    # Binarize image using a threshold value
     blk = np.array([0],  np.uint8)
     wht = np.array([255],np.uint8)
     thr = np.where(na>120, blk, wht)
 
-    # Go back to PIL Image from Numpy array
+    # Convert numpy array to PIL image object
     res = Image.fromarray(thr)
 
-    # Get bounding box from thresholded image
+    # Get bounding box from binarized image
     bbox = res.getbbox()
-    print(bbox)
     y = list(bbox)
-    # y[0] = y[0] - 50
-    # y[1] = y[1] - 50
-    # y[2] = y[2] + 5
-    # y[3] = y[3] + 50
     bbox = tuple(y)
     print('Bounding box:',bbox)
 
@@ -107,23 +102,26 @@ def process_InputImage(filename):
     #convert the image to black and white mode with dither set to None
     bw = color_image.convert('1', dither=Image.NONE)
 
-    # Grayscale
+    # Convert to grayscale
     bw = color_image.convert('L')
     threshold = 90
-    # # Threshold
+    # Threshold
     bw = bw.point( lambda p: 255 if p > threshold else 0 )
+
+    # Invert image colors so it can be read by the deep learning model
     bw = ImageOps.invert(bw)
-    bw = add_margin(bw, 50, 20, 50, 20, 0)
-    # bw = expand2square(bw, 0)
+
+    # Add padding to the inverted image
+    bw = add_margin_to_image(bw, 50, 20, 50, 20, 0)
     bw.save(f'sample_bw.jpg')
 
 
-def add_margin(pil_img, top, right, bottom, left, color):
-    width, height = pil_img.size
-    new_width = width + right + left
+def add_margin_to_image(image, top, right, bottom, left, color):
+    width, height = image.size
     new_height = height + top + bottom
-    result = Image.new(pil_img.mode, (new_width, new_height), color)
-    result.paste(pil_img, (left, top))
+    new_width = left+ width + right
+    result = Image.new(image.mode, (new_width, new_height), color)
+    result.paste(image, (left, top))
     return result
 
 
