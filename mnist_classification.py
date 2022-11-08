@@ -17,56 +17,70 @@ import cv2
 import sys
 import os.path
 
+# 60,000 samples of MNIST handwritten dataset
 def load_dataset():
-	# load dataset
+	# After loading the MNIST data, Divide into train and test datasets
 	(trainX, trainY), (testX, testY) = mnist.load_data()
-	# reshape dataset to have a single channel
+	# Resizing image to make it suitable for apply Convolution operation
 	trainX = trainX.reshape((trainX.shape[0], 28, 28, 1))
 	testX = testX.reshape((testX.shape[0], 28, 28, 1))
-	# one hot encode target values
+	# Convert class vectors to binary class matrices
 	trainY = to_categorical(trainY)
 	testY = to_categorical(testY)
 	return trainX, trainY, testX, testY
 
 
-def prep_pixels(train, test):
-	# convert from integers to floats
-	train_norm = train.astype('float32')
-	test_norm = test.astype('float32')
-	# normalize to range 0-1
-	train_norm = train_norm / 255.0
-	test_norm = test_norm / 255.0
-	# return normalized images
-	return train_norm, test_norm
+def image_data_format(train, test):
+	# Convert from integers to floats
+	train = train.astype('float32')
+	test = test.astype('float32')
+	# Nor. 0 to 1
+	train = train / 255.0
+	test = test / 255.0
+	# Normalized images
+	return train, test
 
-
-def run_test_harness():
-    # load dataset
+#Creating a Deep Neural Network
+def define_model():
     trainX, trainY, testX, testY = load_dataset()
-    # prepare pixel data
-    trainX, testX = prep_pixels(trainX, testX)
-    # define model
+    # Image data formatting
+    trainX, testX = image_data_format(trainX, testX)
+    
+    # Inititalising the CNN
     model = Sequential()
+    
+    # 1st Convolution Layer
     model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', input_shape=(28, 28, 1)))
-    model.add(MaxPooling2D((2, 2)))
+    model.add(MaxPooling2D((2, 2)))  # Maxpooling single maximum value of 2x2
+
+    # 2nd Convolution Layer
     model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform'))
+    
+    # 3rd Convolution Layer
     model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform'))
     model.add(MaxPooling2D((2, 2)))
+    
+    # Before using fully connected Layer, need to be flatten so that 2D to 1D
     model.add(Flatten())
     model.add(Dense(100, activation='relu', kernel_initializer='he_uniform'))
+    
+    # Last Fully Connected Layer, output must be equal to number of classes, 10 (0-9)
     model.add(Dense(10, activation='softmax'))
-    # compile model
+    
+    # Compiling the CNN
     opt = SGD(learning_rate=0.01, momentum=0.9)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
 
-    # fit model
+    # Training the CNN on the training dataset
     model.fit(trainX, trainY, epochs=10, batch_size=32, verbose=0)
+
+    # Evaluating on testing data set MNIST
     test_loss, test_acc = model.evaluate(testX, testY)
-    print("test_loss : ", test_loss)
-    print("test_acc : ", test_acc)
-    # save model
-    model.save('final_model.h5')
+    print("Test loss on 10,000 test samples : ", test_loss)
+    print("Validation Accuracy on 10,000 test samples : ", test_acc)
+    # Save model
+    model.save('Final_CNN.h5')
 
 
 def process_InputImage(filename):
@@ -135,13 +149,13 @@ def load_image(filename):
 
 
 def run_example(file):
-  if not os.path.isfile('final_model.h5'):
+  if not os.path.isfile('Final_CNN.h5'):
     print("Training the Model")
-    run_test_harness()
+    define_model()
   process_InputImage(file)
   img = load_image('sample_bw.jpg')
-  model = load_model('final_model.h5')
-  predict_value = model.predict(img)
+  cnn = load_model('Final_CNN.h5')
+  predict_value = cnn.predict(img)
   digit = argmax(predict_value)
   print(digit)
   return digit
