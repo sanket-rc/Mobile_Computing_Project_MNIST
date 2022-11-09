@@ -10,7 +10,7 @@ import shutil
 from flask import Flask, request
 from werkzeug.utils import secure_filename
 
-from mnist_classification import run_example, run_test_harness
+from mnist_classification import run_example, define_model
 
 FILE_TYPES = {'png', 'jpg', 'jpeg'}
 
@@ -22,7 +22,7 @@ def check_file_type(filename):
 
 @app.route('/trainAndTestModel')
 def trainAndTest():
-    run_test_harness()
+    define_model()
     return 'Training and testing completed'
 
 
