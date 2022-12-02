@@ -23,31 +23,188 @@
 
     <ImageView
         android:id="@+id/image_view2"
-        android:layout_width="393dp"
-        android:layout_height="480dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/hostText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:gravity="center"
+            android:text="Server"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/ip_address"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="192.168.0.101"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/port_number"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="5001"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <EditText
-            android:id="@+id/ip_address"
-            android:layout_width="200dp"
-            android:fontFamily="sans-serif-condensed-medium"
-            android:textFontWeight="400"
-            android:layout_height="match_parent"
-            android:text="192.168.0.101"
-            android:textSize="22sp"/>
-        <EditText
-            android:id="@+id/port_number"
-            android:layout_weight="1"
+
+        <TextView
+            android:id="@+id/socketOneText"
             android:layout_width="wrap_content"
-            android:fontFamily="sans-serif-condensed-medium"
-            android:textFontWeight="400"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:gravity="center"
+            android:text="Socket 1"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketOneIP"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="192.168.0.101"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketOnePort"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
             android:text="5001"
-            android:textSize="22sp"/>
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/socketTwoText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:gravity="center"
+            android:text="Socket 2"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketTwoIP"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="192.168.0.101"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketTwoPort"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="5001"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/socketThreeText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:gravity="center"
+            android:text="Socket 3"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketThreeIP"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="192.168.0.101"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketThreePort"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="5001"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/socketFourText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:gravity="center"
+            android:text="Socket 4"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketFourIP"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="192.168.0.101"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/socketFourPort"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="5001"
+            android:textFontWeight="400"
+            android:textSize="22sp" />
     </LinearLayout>
 
     <Button

@@ -15,7 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-public class MainActivity extends AppCompatActivity{
+
+public class HostActivity extends AppCompatActivity{
 
     // Initialize variables
     ImageView imageView;
@@ -23,10 +24,11 @@ public class MainActivity extends AppCompatActivity{
     Button btnNext;
     Bitmap captureImage;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.host);
 
         // Assign variables
         imageView = findViewById(R.id.image_view);
@@ -34,9 +36,9 @@ public class MainActivity extends AppCompatActivity{
         btnNext = (Button)findViewById(R.id.nav_btn);
 
         // Request for Camera permission
-        if(ContextCompat.checkSelfPermission( MainActivity.this,
+        if(ContextCompat.checkSelfPermission( HostActivity.this,
                 Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(MainActivity.this,
+            ActivityCompat.requestPermissions(HostActivity.this,
                     new String[]{
                             Manifest.permission.CAMERA
                     }, 100);
@@ -75,4 +77,8 @@ public class MainActivity extends AppCompatActivity{
             imageView.setImageBitmap(captureImage);
         }
     }
+
+
+
+
 }

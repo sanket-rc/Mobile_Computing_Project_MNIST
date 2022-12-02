@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +31,7 @@ import okhttp3.Response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +44,14 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
     Bitmap bitmap;
     EditText ipAddress;
     EditText portNumber;
+    EditText socket1IP;
+    EditText socket1Port;
+
     private final String PATTERN = "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$";
+
+    NsdHelper nsdHelper;
+    ServerSocket socket1;
+    int port1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +63,11 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
         btnUploadImg = findViewById(R.id.btn_upload_img);
         ipAddress = findViewById(R.id.ip_address);
         portNumber = findViewById(R.id.port_number);
+        socket1IP = findViewById(R.id.socketOneIP);
+        socket1Port = findViewById(R.id.socketOnePort);
+
+
+
 
         Bundle bundle = getIntent().getExtras();
 
@@ -66,6 +80,18 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
 
         // Listens for the upload button to get clicked
         btnUploadImg.setOnClickListener((view) -> uploadImageToServer());
+
+        nsdHelper = new NsdHelper(this);
+
+        try {
+            socket1 = new ServerSocket(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        port1 = socket1.getLocalPort();
+        nsdHelper.registerService(port1);
+
+
     }
 
     public void uploadImageToServer(){
