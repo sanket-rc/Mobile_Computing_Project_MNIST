@@ -75,52 +75,41 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
     }
 
     private void classifyDrawing(Bitmap bitmap) {
-        if (bitmap != null)
-        {
+        if (bitmap != null) {
             Log.e(TAG, "Bitmap Here.");
         }
-        if (digitClassifier.isInitialized())
-        {
+        if (digitClassifier.isInitialized()) {
             Log.e(TAG, "Initialized Here.");
         }
 
-
-
         if ((bitmap != null) && (digitClassifier.isInitialized())) {
-            try{
-                Bitmap test = preprocessImage(bitmap, 0);
+            try {
+                responseText.setText(digitClassifier.classify(preprocessImage(bitmap, 0)));
                 Log.e(TAG, "Classifying TL.");
-                responseText.setText(digitClassifier.classify(test));
-
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 responseText.setText(e.toString());
                 Log.e(TAG, "Error classifying TL.", e);
             }
 
-            try{
+            try {
                 responseText1.setText(digitClassifier.classify(preprocessImage(bitmap, 1)));
                 Log.e(TAG, "Classifying TR.");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 responseText1.setText(e.toString());
                 Log.e(TAG, "Error classifying TR.", e);
             }
 
-            try{
+            try {
                 responseText2.setText(digitClassifier.classify(preprocessImage(bitmap, 2)));
                 Log.e(TAG, "Classifying BL.");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 responseText2.setText(e.toString());
                 Log.e(TAG, "Error classifying BL.", e);
             }
-
-            try{
+            try {
                 responseText3.setText(digitClassifier.classify(preprocessImage(bitmap, 3)));
                 Log.e(TAG, "Classifying BR.");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 responseText3.setText(e.toString());
                 Log.e(TAG, "Error classifying BR.", e);
             }
@@ -155,7 +144,6 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
         }
 
         Log.e(TAG, "Cropping.");
-
         //0 = TL, 1 = TR, 2 = BL, 3 = BR
         Bitmap cropped;
         switch(version){
