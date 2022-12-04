@@ -34,7 +34,7 @@
         android:textSize="18dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="Upload Image" />
+        android:text="Classify Image" />
 
     <TextView
         android:id="@+id/responseText"

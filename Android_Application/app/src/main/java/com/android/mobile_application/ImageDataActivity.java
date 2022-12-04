@@ -4,10 +4,12 @@ package com.android.mobile_application;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,6 +18,14 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class ImageDataActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -30,6 +40,9 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
     TextView responseText1;
     TextView responseText2;
     TextView responseText3;
+    Gateway gateway;
+    HashMap<String, BluetoothSocket> map;
+    List<String> accepteddevices;
 
     private final String PATTERN = "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$";
     private final String TAG = "MainActivity";
@@ -49,6 +62,8 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
         responseText1 = findViewById(R.id.responseText1);
         responseText2 = findViewById(R.id.responseText2);
         responseText3 = findViewById(R.id.responseText3);
+        map=Master.map;
+        accepteddevices=Master.accepteddevices;
 
         Bundle bundle = getIntent().getExtras();
 
@@ -74,7 +89,16 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
 
     }
 
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        String temp= Base64.encodeToString(b, Base64.DEFAULT);
+        return temp;
+    }
+
     private void classifyDrawing(Bitmap bitmap) {
+
         if (bitmap != null) {
             Log.e(TAG, "Bitmap Here.");
         }
@@ -84,6 +108,22 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
 
         if ((bitmap != null) && (digitClassifier.isInitialized())) {
             try {
+                String bitmap_str = BitMapToString(preprocessImage(bitmap, 0));
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("classify_image",1);
+                    jsonObject.put("bitmap_string",bitmap_str);
+                    jsonObject.put("quadrant", 0);
+//                    jsonObject.put("matrix2", new JSONArray(matrixint2));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String jsonString = jsonObject.toString();
+                //System.out.println(i+"->"+jsonString);
+
+
+                gateway = new Gateway(map.get(accepteddevices.get(0)), Master.handler);
+                gateway.write(jsonString.getBytes());
                 responseText.setText(digitClassifier.classify(preprocessImage(bitmap, 0)));
                 Log.e(TAG, "Classifying TL.");
             } catch (Exception e) {
@@ -92,6 +132,7 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
             }
 
             try {
+                String bitmap_str = BitMapToString(preprocessImage(bitmap, 1));
                 responseText1.setText(digitClassifier.classify(preprocessImage(bitmap, 1)));
                 Log.e(TAG, "Classifying TR.");
             } catch (Exception e) {
