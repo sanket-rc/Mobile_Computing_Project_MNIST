@@ -1,5 +1,7 @@
 package com.android.mobile_application;
 
+
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,6 +36,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class ImageDataActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     // Initialize variables
@@ -42,7 +46,11 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
     Bitmap bitmap;
     EditText ipAddress;
     EditText portNumber;
+    TextView responseText;
     private final String PATTERN = "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$";
+    private final String TAG = "MainActivity";
+
+    DigitClassifier digitClassifier = new DigitClassifier(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,7 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
         btnUploadImg = findViewById(R.id.btn_upload_img);
         ipAddress = findViewById(R.id.ip_address);
         portNumber = findViewById(R.id.port_number);
+        responseText = findViewById(R.id.responseText);
 
         Bundle bundle = getIntent().getExtras();
 
@@ -65,7 +74,43 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
         }
 
         // Listens for the upload button to get clicked
-        btnUploadImg.setOnClickListener((view) -> uploadImageToServer());
+        btnUploadImg.setOnClickListener((view) -> classifyDrawing());
+
+        // Set up digit classifier
+        try {
+            digitClassifier.initialize();
+            Log.e(TAG, "Setting up digit classifier.");
+        }
+        catch (Exception e){
+            Log.e(TAG, "Error to setting up digit classifier.");
+        }
+
+
+    }
+
+    private void classifyDrawing() {
+        Bitmap lBitmap = bitmap;
+        if (lBitmap != null)
+        {
+            Log.e(TAG, "Bitmap Here.");
+        }
+        if (digitClassifier.isInitialized())
+        {
+            Log.e(TAG, "Initialized Here.");
+        }
+
+
+
+        if ((lBitmap != null) && (digitClassifier.isInitialized())) {
+            try{
+                responseText.setText(digitClassifier.classify(lBitmap));
+                Log.e(TAG, "Classifying drawing.");
+            }
+            catch (Exception e) {
+                responseText.setText(e.toString());
+                Log.e(TAG, "Error classifying drawing.", e);
+            }
+        }
     }
 
     public void uploadImageToServer(){
@@ -125,7 +170,6 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = findViewById(R.id.responseText);
                         try {
                             responseText.setText(response.body().string());
                         } catch (IOException e) {
@@ -143,7 +187,6 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = findViewById(R.id.responseText);
                         responseText.setText("Failed to Connect to Server");
                     }
                 });
@@ -161,5 +204,11 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    public void onDestroy() {
+        digitClassifier.close();
+        super.onDestroy();
     }
 }
