@@ -3,25 +3,18 @@ package com.android.mobile_application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.BatteryManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,14 +25,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -64,9 +59,19 @@ public class Slave extends AppCompatActivity{
     String bluetooth_name;
     String response="0";
     ImageView capturedImage;
+
 //    int batterylevel;
     AlertDialog alertDialog;
     int monitorflag=0;
+
+
+    Gateway classifyGateway;
+    HashMap<String, BluetoothSocket> map;
+    List<String> accepteddevices;
+    int quadrant;
+    Bitmap bitmap;
+    static final String TAG = "Slave";
+    DigitClassifier digitClassifier;
 
 //    private BroadcastReceiver slaveBatteryInfoReceiver = new BroadcastReceiver() {
 //        @Override
@@ -81,7 +86,11 @@ public class Slave extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
         bluetoothAdapter.disable();
+        if (digitClassifier != null) {
+            digitClassifier.close();
+        }
     }
+
 
     /**
      * @param encodedString
@@ -114,7 +123,6 @@ public class Slave extends AppCompatActivity{
 //
 //        sendbatteryinfo.setEnabled(false);
         listeningbutton.setEnabled(false);
-
 
         //getApplicationContext().registerReceiver(this.slaveBatteryInfoReceiver,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
@@ -296,6 +304,8 @@ public class Slave extends AppCompatActivity{
 //            }
 //        });
 
+        map=Master.map;
+        accepteddevices=Master.accepteddevices;
 
     }
 
@@ -503,9 +513,18 @@ public class Slave extends AppCompatActivity{
                     }
                     if(jsonObject.has("classify_image"))
                     {
-                        Toast.makeText(getApplicationContext(), jsonObject.get("quadrant").toString(), Toast.LENGTH_SHORT).show();
+                        quadrant = Integer.parseInt(jsonObject.get("quadrant").toString());
                         Bitmap bitmap = StringToBitMap(jsonObject.get("bitmap_string").toString());
                         capturedImage.setImageBitmap(bitmap);
+                        // Set up digit classifier
+                        try {
+                            digitClassifier.initialize(quadrant);
+                            Log.e(TAG, "Setting up digit classifier.");
+                        }
+                        catch (Exception e){
+                            Log.e(TAG, "Error to setting up digit classifier.");
+                        }
+                        digitClassifier.classify(bitmap);
                     }
                     break;
             }
@@ -513,6 +532,114 @@ public class Slave extends AppCompatActivity{
         }
     });
 
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        String temp= Base64.encodeToString(b, Base64.DEFAULT);
+        return temp;
+    }
 
+    private void classifyDrawing(Bitmap bitmap) {
+
+
+        if (bitmap != null) {
+            Log.e(TAG, "Bitmap Here.");
+        }
+        if (digitClassifier.isInitialized()) {
+            Log.e(TAG, "Initialized Here.");
+        }
+
+        if ((bitmap != null) && (digitClassifier.isInitialized())) {
+            switch(quadrant){
+                case 0:
+                    callClassify(0);
+                case 1:
+                    callClassify(1);
+                case 2:
+                    callClassify(2);
+                case 3:
+                    callClassify(3);
+            }
+
+        }
+    }
+
+    private void callClassify(int version){
+        String resultString;
+        try {
+            String bitmap_str = BitMapToString(preprocessImage(bitmap, version));
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("classify_image",1); //What is this 1 for?
+                jsonObject.put("bitmap_string",bitmap_str);
+                jsonObject.put("quadrant", version);
+//                    jsonObject.put("matrix2", new JSONArray(matrixint2));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String jsonString = jsonObject.toString();
+            //System.out.println(i+"->"+jsonString);
+
+
+            classifyGateway = new Gateway(map.get(accepteddevices.get(0)), Master.handler);
+            classifyGateway.write(jsonString.getBytes());
+
+            //DO SOMETHING WITH THIS
+            resultString = digitClassifier.classify(preprocessImage(bitmap, version));
+
+            Log.e(TAG, "Classifying TL.");
+        } catch (Exception e) {
+            Log.e(TAG, "Error classifying TL.", e);
+        }
+    }
+
+    private Bitmap preprocessImage(Bitmap bitmap, int version) {
+        int width = bitmap.getWidth()/2;
+        int height = bitmap.getHeight()/2;
+        Bitmap bnw = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
+
+        int R, G, B;
+        int pixel;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // get pixel color
+                pixel = bitmap.getPixel(x, y);
+
+                R = Color.red(pixel);
+                G = Color.green(pixel);
+                B = Color.blue(pixel);
+                int gray = (int) (0.2989 * R + 0.5870 * G + 0.1140 * B);
+                if (gray < 128) {
+                    gray = 255;
+                }
+                else{
+                    gray = 0;
+                }
+                // set new pixel color to output bitmap
+                bnw.setPixel(x, y, Color.rgb(gray, gray, gray));
+            }
+        }
+
+        Log.e(TAG, "Cropping.");
+        //0 = TL, 1 = TR, 2 = BL, 3 = BR
+        Bitmap cropped;
+        switch(version){
+            case 0:
+                cropped = Bitmap.createBitmap(bnw, 0, 0, width, height);
+                break;
+            case 1:
+                cropped = Bitmap.createBitmap(bnw, width, 0, width, height);
+                break;
+            case 2:
+                cropped = Bitmap.createBitmap(bnw, 0, height, width, height);
+                break;
+            default:
+                cropped = Bitmap.createBitmap(bnw, width, height, width, height);
+                break;
+        }
+        Log.e(TAG, "Leaving Cropping.");
+        return cropped;
+    }
 }
 

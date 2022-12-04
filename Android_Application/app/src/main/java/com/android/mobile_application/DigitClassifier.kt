@@ -26,11 +26,11 @@ class DigitClassifier (private val context: Context) {
     private var inputImageHeight: Int = 0 // will be inferred from TF Lite model.
     private var modelInputSize: Int = 0 // will be inferred from TF Lite model.
 
-    fun initialize(): Task<Void?> {
+    fun initialize(version : Int): Task<Void?> {
         val task = TaskCompletionSource<Void?>()
         executorService.execute {
             try {
-                initializeInterpreter()
+                initializeInterpreter(version)
                 task.setResult(null)
                 Log.e (TAG, "Initialized")
             } catch (e: IOException) {
@@ -41,9 +41,16 @@ class DigitClassifier (private val context: Context) {
         return task.task
     }
 
-    private fun initializeInterpreter() {
+    private fun initializeInterpreter(version : Int) {
         val assetManager = context.assets
-        val model = loadModelFile(assetManager, "mnistTL.tflite")
+        var fileName : String = ""
+        when (version){
+            0 -> fileName = "mnist_TL.tflite"
+            1 -> fileName = "mnist_TR.tflite"
+            2 -> fileName = "mnist_BL.tflite"
+            3 -> fileName = "mnist_BR.tflite"
+        }
+        val model = loadModelFile(assetManager, fileName)
         val interpreter = Interpreter(model)
 
         val inputShape = interpreter.getInputTensor(0).shape()
