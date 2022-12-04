@@ -73,8 +73,8 @@ class DigitClassifier (private val context: Context) {
 
         val resizedImage = Bitmap.createScaledBitmap(
                 bitmap,
-                inputImageWidth,
-                inputImageHeight,
+                28,
+                28,
                 true
         )
         val byteBuffer = convertBitmapToByteBuffer(resizedImage)
@@ -86,22 +86,11 @@ class DigitClassifier (private val context: Context) {
         val result = output[0]
         val maxIndex = result.indices.maxByOrNull { result[it] } ?: -1
         val resultString =
-                "Prediction Result: %d\nConfidence: %2f"
+                "Prediction Result: %d | Confidence: %2f"
                         .format(maxIndex, result[maxIndex])
 
         Log.e(TAG, "Leaving Classify")
         return resultString
-    }
-
-    fun classifyAsync(bitmap: Bitmap): Task<String> {
-        Log.e(TAG, "ENTERING ASYNC")
-        val task = TaskCompletionSource<String>()
-        executorService.execute {
-            val result = classify(bitmap)
-            task.setResult(result)
-        }
-        Log.e(TAG, "LEAVING ASYNC")
-        return task.task
     }
 
     fun close() {
