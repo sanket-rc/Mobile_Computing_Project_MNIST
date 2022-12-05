@@ -65,10 +65,6 @@ public class Master extends AppCompatActivity implements Serializable {
     ArrayList<BluetoothDevice> arrayListBluetoothDevices = null;
     ListView devicediscoverylist, chosendeviceslist;
     static TextView status;
-//    TextView masterbattery;
-//    TextView masterlattitude;
-//    TextView masterlongitude;
-//    static TextView logs;
     BluetoothDevice device;
     static final int STATE_LISTENING = 1;
     static final int STATE_CONNECTING = 2;
@@ -76,29 +72,13 @@ public class Master extends AppCompatActivity implements Serializable {
     static final int STATE_CONNECTION_FAILED = 4;
     static final int STATE_MESSAGE_RECEIVED = 5;
     static String phoneId;
-//    private LocationManager masterlocationManager;
-//    private LocationListener mastergpslistener;
-//    static String mastergpslattitude;
-//    static String mastergpslongitude;
-    // int batterylevel;
     static List<String> accepteddevices;
-    //static String filepath;
     static Context c1;
     static int counterVariable=0;
     static int totalPowerConsumtion=0;
     static long distributedtimeTaken=0;
 
     static HashMap<String, BluetoothSocket> map;
-
-
-//    private BroadcastReceiver masterBatteryInfoReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context ctxt, Intent intent) {
-//            //int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-//            //batterylevel = level;
-//            //masterbattery.setText(String.valueOf(level) + "%");
-//        }
-//    };
 
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -112,23 +92,7 @@ public class Master extends AppCompatActivity implements Serializable {
                 chosenadapter.add(device.getName()+"->Connected");
                 phoneId=device.getName();
                 chosenadapter.notifyDataSetChanged();
-//                JSONObject jsonObjectnew = new JSONObject();
-//                try {
-//                    jsonObjectnew.put("requesting_details_intial",1);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//                String jsonString= jsonObjectnew.toString();
                 Gateway gateway=new Gateway(map.get(device.getName()),handler);
-                // gateway.start();
-//                try {
-//                    Thread.sleep(3000);
-//                    gateway.write(jsonString.getBytes());
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                } catch (NullPointerException e1){
-//                    Toast.makeText(getApplicationContext(), "NOT CONNECTED", Toast.LENGTH_SHORT).show();
-//                }
             }else if(BluetoothDevice.ACTION_PAIRING_REQUEST.equals(action)){
                 try {
                     Thread.sleep(3000);
@@ -140,8 +104,6 @@ public class Master extends AppCompatActivity implements Serializable {
             }
             else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
 
-//                chosenadapter.remove(device.getName() + "->" + "ELIGIBLE");
-//                chosenadapter.remove(device.getName() + "->" + "NOT-ELIGIBLE");
                 chosenadapter.remove(device.getName() +"->Connected");
                 status.setText("Disconnected from "+ device.getName());
                 chosenadapter.notifyDataSetChanged();
@@ -164,59 +126,22 @@ public class Master extends AppCompatActivity implements Serializable {
         chosendeviceslist = findViewById(R.id.chosendeviceslist);
         chosenadapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1);
         chosendeviceslist.setAdapter(chosenadapter);
-//        masterbattery = findViewById(R.id.masterbattery);
-//        masterlattitude = findViewById(R.id.masterlattitude);
-//        masterlongitude = findViewById(R.id.masterlongitude);
         status = findViewById(R.id.status);
         map=new HashMap<String, BluetoothSocket>();
         accepteddevices=new ArrayList<>();
-        // filepath=getApplicationContext().getExternalFilesDir(null).getAbsolutePath();
         c1=getApplicationContext();
 
 
-        //getApplicationContext().registerReceiver(this.masterBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         IntentFilter filter=new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         getApplicationContext().registerReceiver(this.bluetoothReceiver,filter);
 
-       // masterlocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-//        mastergpslistener = new LocationListener() {
-//            @Override
-//            public void onLocationChanged(Location location) {
-//                mastergpslongitude = String.valueOf(location.getLongitude());
-//                mastergpslattitude = String.valueOf(location.getLatitude());
-////                masterlattitude.setText("Lattitude: " + mastergpslattitude);
-////                masterlongitude.setText("Longitude: " + mastergpslongitude);
-//            }
-//
-//            @Override
-//            public void onStatusChanged(String s, int i, Bundle bundle) {
-//
-//            }
-//
-//            @Override
-//            public void onProviderEnabled(String s) {
-//
-//            }
-//
-//            @Override
-//            public void onProviderDisabled(String s) {
-//
-//                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//                startActivity(i);
-//            }
-//        };
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-       // masterlocationManager.requestLocationUpdates("gps", 5000, 0, mastergpslistener);
-
 
         bluetoothdiscovery.setEnabled(false);
-        //matrixmultiplication.setEnabled(false);
 
         // Bluetooth
         bluetoothAdapter= BluetoothAdapter.getDefaultAdapter();
@@ -335,43 +260,11 @@ public class Master extends AppCompatActivity implements Serializable {
                 JSONObject jsonObjectnew = new JSONObject();
                 try {
                     jsonObjectnew.put("ping","master ping");
-                    //jsonObjectnew.put("name",str[0]);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 String jsonString= jsonObjectnew.toString();
                 gateway.write(jsonString.getBytes());
-//                if(str[1].compareTo("NOTELIGIBLE")==0 || str[1].compareTo("DECLINED")==0){
-//                    JSONObject jsonObjectnew = new JSONObject();
-//                    try {
-//                        jsonObjectnew.put("requesting_details_intial",-1);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    String jsonString= jsonObjectnew.toString();
-//                    try {
-//                        Thread.sleep(1000);
-//                        gateway.write(jsonString.getBytes());
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    } catch (NullPointerException e1){
-//                        Toast.makeText(getApplicationContext(), "NOT CONNECTED", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//                else if(str[1].compareTo("ELIGIBLE")==0){
-//                    JSONObject jsonObjectnew = new JSONObject();
-//                    try {
-//                        jsonObjectnew.put("requesting_details_for_popup",-1);
-//                        jsonObjectnew.put("name",str[0]);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    String jsonString= jsonObjectnew.toString();
-//                    gateway.write(jsonString.getBytes());
-//
-//                    //displaychosendetails(str[0],gateway); // remove this=================
-//                    matrixmultiplication.setEnabled(true);
-//                }
             }
         });
         matrixmultiplication.setOnClickListener(new View.OnClickListener() {
@@ -393,41 +286,6 @@ public class Master extends AppCompatActivity implements Serializable {
         });
     }
 
-//    private void displaychosendetails(String s, Gateway gateway){
-//
-//        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-//        alertDialogBuilder.setMessage("Device "+ s + " :\n");
-//        alertDialogBuilder.setPositiveButton("Monitor",
-//                new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface arg0, int arg1) {
-//                        JSONObject jsonObjectnew = new JSONObject();
-//                        try {
-//                            jsonObjectnew.put("monitoring_request",-1);
-//                            jsonObjectnew.put("name",s);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                        String jsonString= jsonObjectnew.toString();
-//                        gateway.write(jsonString.getBytes());
-//                    }
-//                });
-//
-//        alertDialogBuilder.setNegativeButton("ASK", new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int which) {
-//                JSONObject jsonObjectnew = new JSONObject();
-//                try {
-//                    jsonObjectnew.put("are_you_ready_for_computation",-1);
-//                    jsonObjectnew.put("name",s);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//                String jsonString= jsonObjectnew.toString();
-//                gateway.write(jsonString.getBytes());
-//            }
-//        });
-//        alertDialogBuilder.create().show();
-//    }
 
     private void getPairedDevices() {
         Set<BluetoothDevice> pairedDevice = bluetoothAdapter.getBondedDevices();
@@ -508,27 +366,6 @@ public class Master extends AppCompatActivity implements Serializable {
         bluetoothAdapter.disable();
     }
 
-//    private static double distance(double masterlat, double masterlon, double slavelat, double slavelon) {
-//        double theta = masterlon - slavelon;
-//        double dist = Math.sin(deg2rad(masterlat))
-//                * Math.sin(deg2rad(slavelat))
-//                + Math.cos(deg2rad(masterlat))
-//                * Math.cos(deg2rad(slavelat))
-//                * Math.cos(deg2rad(theta));
-//        dist = Math.acos(dist);
-//        dist = rad2deg(dist);
-//        dist = dist * 60 * 1.1515;
-//        return (dist);
-//    }
-//    private static double deg2rad(double deg) {
-//        return (deg * Math.PI / 180.0);
-//    }
-//    private static double rad2deg(double rad) {
-//        return (rad * 180.0 / Math.PI);
-//    }
-
-
-
     static Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
@@ -542,161 +379,6 @@ public class Master extends AppCompatActivity implements Serializable {
             }else if(msg.what==STATE_CONNECTION_FAILED){
                 status.setText("CONNECTION FAILED");
             }
-//            else if(msg.what==STATE_MESSAGE_RECEIVED){
-//                byte[] readBuff = (byte [])msg.obj;
-//                String tempMsg = new String(readBuff,0,msg.arg1);
-//
-//                if(tempMsg.contains("matrix_calculation_reply")){
-//
-//                    String[] tempMsg1=tempMsg.split("\\}");
-//                    for(int i=0;i<tempMsg1.length;i++){
-//                        tempMsg1[i]=tempMsg1[i]+"}";
-//                    }
-//                    for(int v=0;v<tempMsg1.length;v++){
-//                        JsonObject jsonObject = new JsonParser().parse(tempMsg1[v]).getAsJsonObject();
-//                        if(jsonObject.get("output_row").getAsInt()==0){
-//                            Mastermatrix.r1m5.setText(jsonObject.get("output_row_matrix").getAsString());
-//                        }else if(jsonObject.get("output_row").getAsInt()==1){
-//                            Mastermatrix.r2m5.setText(jsonObject.get("output_row_matrix").getAsString());
-//                        }else if(jsonObject.get("output_row").getAsInt()==2){
-//                            Mastermatrix.r3m5.setText(jsonObject.get("output_row_matrix").getAsString());
-//                        }else if(jsonObject.get("output_row").getAsInt()==3){
-//                            Mastermatrix.r4m5.setText(jsonObject.get("output_row_matrix").getAsString());
-//                        }
-//                        counterVariable++;
-//                        totalPowerConsumtion = totalPowerConsumtion + jsonObject.get("powerConsumption").getAsInt();
-//                        if(jsonObject.get("time_taken").getAsLong() > distributedtimeTaken){
-//                            distributedtimeTaken = jsonObject.get("time_taken").getAsLong();
-//                        }
-//                    }
-//                    if(counterVariable==4){
-//                        Mastermatrix.etd.setText(String.valueOf(distributedtimeTaken) + " nanoseconds");
-//                        Mastermatrix.tpcwd.setText((String.valueOf(totalPowerConsumtion) + " Joules"));
-//                        distributedtimeTaken = 0;
-//                        totalPowerConsumtion = 0;
-//                    }
-//
-//                }else{
-//
-//                    JsonObject jsonObject = new JsonParser().parse(tempMsg).getAsJsonObject();
-//
-//                    if(jsonObject.has("monitoring_reply"))
-//                    {
-//                        int batt = jsonObject.get("batterylevel").getAsInt();
-//                        String pid=jsonObject.get("phoneid").getAsString();
-//
-//                        logs.setText("\nReceived from :"+ pid+ "->Battery: "+jsonObject.get("batterylevel").getAsString()+"%");
-//                        String data="";
-//                        data=java.time.LocalDateTime.now()+"->Received from :"+ pid+ "->Battery: "+jsonObject.get("batterylevel").getAsString()+"%\n";
-//
-//                        String filename = "batterymonitoringlog";
-//                        File file = new File(filepath, filename + ".txt");
-//                        FileOutputStream stream = null;
-//                        try {
-//                            stream = new FileOutputStream(file, true);
-//                        } catch (FileNotFoundException e) {
-//                            e.printStackTrace();
-//                        }
-//                        try {
-//                            stream.write(data.getBytes());
-//
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        } finally {
-//                            try {
-//                                stream.close();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//
-//                    }
-//
-//                    if(jsonObject.has("requesting_details_intial_rejected")){
-//                        chosenadapter.remove(phoneId + "->" + "Connected");
-//                        chosenadapter.remove(phoneId + "->" + "DECLINED");
-//                        chosenadapter.remove(phoneId + "->" + "NOTELIGIBLE");
-//                        chosenadapter.add(phoneId + "->" + "DECLINED");
-//                        chosenadapter.notifyDataSetChanged();
-//                    }
-//
-//                    if(jsonObject.has("batterylevel") && jsonObject.has("phoneid")&&jsonObject.has("lat") && jsonObject.has("lon") && jsonObject.has("requesting_details_intial_response")) {
-//
-//
-//                        logs.setText("Slave Logs: "+jsonObject.get("phoneid")+" -> "+jsonObject.get("batterylevel")+" -> "+ jsonObject.get("lat").getAsString()+" -> "+ jsonObject.get("lon").getAsString());
-//                        int batterylevel = jsonObject.get("batterylevel").getAsInt();
-//                        String pid = jsonObject.get("phoneid").getAsString();
-//                        double slaveLat = jsonObject.get("lat").getAsDouble();
-//                        double slaveLon = jsonObject.get("lon").getAsDouble();
-//                        double x1 = Double.parseDouble(mastergpslattitude);
-//                        double y1 = Double.parseDouble(mastergpslongitude);
-//                        double x2 = slaveLat;
-//                        double y2 = slaveLon;
-//                        double dis = 1000 * distance(x1, y1, x2, y2);
-//
-//                        String data = "";
-//
-//
-//                        if (batterylevel > 25 && dis < 120) {
-//                            String phd = jsonObject.get("phoneid").getAsString();
-//
-//                            chosenadapter.remove(phoneId + "->" + "Connected");
-//                            chosenadapter.remove(phoneId + "->" + "DECLINED");
-//                            chosenadapter.remove(phoneId + "->" + "NOTELIGIBLE");
-//                            chosenadapter.add(phoneId + "->" + "ELIGIBLE");
-//                            chosenadapter.notifyDataSetChanged();
-//
-//                            data=java.time.LocalDateTime.now()+"->PhoneId: "+pid+"->Battery: "+batterylevel+"%->Latitude: "+slaveLat+"->Longitude: "+slaveLon+"\n";
-//
-//                            String filename = "ConnectionInformation";
-//                            File file = new File(filepath, filename + ".txt");
-//                            FileOutputStream stream = null;
-//                            try {
-//                                stream = new FileOutputStream(file, true);
-//                            } catch (FileNotFoundException e) {
-//                                e.printStackTrace();
-//                            }
-//                            try {
-//                                stream.write(data.getBytes());
-//
-//                                Toast.makeText(c1, "Data written to file " + filename + ".txt", Toast.LENGTH_SHORT).show();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            } finally {
-//                                try {
-//                                    stream.close();
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//
-//                        } else {
-//                            chosenadapter.remove(phoneId + "->" + "Connected");
-//                            chosenadapter.remove(phoneId + "->" + "DECLINED");
-//                            chosenadapter.remove(phoneId + "->" + "NOTELIGIBLE");
-//                            chosenadapter.add(phoneId + "->" + "NOTELIGIBLE");
-//                            chosenadapter.notifyDataSetChanged();
-//                        }
-//                    }
-//
-//                    if(jsonObject.has("are_you_ready_for_computation_reply")){
-//                        if(jsonObject.get("reply").getAsString().compareTo("YES")==0){
-//                            chosenadapter.remove(jsonObject.get("name").getAsString()+"->ELIGIBLE");
-//                            chosenadapter.add(jsonObject.get("name").getAsString()+"->ACCEPTED");
-//                            chosenadapter.notifyDataSetChanged();
-//                        }else if(jsonObject.get("reply").getAsString().compareTo("NO")==0){
-//                            chosenadapter.remove(jsonObject.get("name").getAsString()+"->ELIGIBLE");
-//                            chosenadapter.add(jsonObject.get("name").getAsString()+"->DECLINED");
-//                            chosenadapter.notifyDataSetChanged();
-//                        }
-//                    }
-//
-//                }
-//
-//            }
-
-
-
             return true;
         }
     });
