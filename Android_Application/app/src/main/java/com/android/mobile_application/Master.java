@@ -74,7 +74,6 @@ public class Master extends AppCompatActivity implements Serializable {
 
     static HashMap<String, BluetoothSocket> map;
 
-
     private final BroadcastReceiver bluetoothDeviceReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -132,8 +131,6 @@ public class Master extends AppCompatActivity implements Serializable {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
-
         bluetoothdiscovery.setEnabled(false);
 
         // Bluetooth
@@ -242,6 +239,17 @@ public class Master extends AppCompatActivity implements Serializable {
         chosendeviceslist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    String[] str=chosenadapter.getItem(position).split("->");
+                Gateway gateway=new Gateway(map.get(str[0]),handler);
+                gateway.start();
+                JSONObject jsonObjectnew = new JSONObject();
+                try {
+                    jsonObjectnew.put("ping","master ping");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String jsonString= jsonObjectnew.toString();
+                gateway.write(jsonString.getBytes());
             }
         });
         matrixmultiplication.setOnClickListener(new View.OnClickListener() {
