@@ -39,9 +39,6 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
     Bitmap bitmap;
 
     TextView responseText;
-//    TextView responseText1;
-//    TextView responseText2;
-//    TextView responseText3;
     Gateway gateway;
     HashMap<String, BluetoothSocket> map;
     List<String> accepteddevices;
@@ -64,9 +61,6 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
         btnUploadImg = findViewById(R.id.btn_upload_img);
 
         responseText = findViewById(R.id.responseText);
-//        responseText1 = findViewById(R.id.responseText1);
-//        responseText2 = findViewById(R.id.responseText2);
-//        responseText3 = findViewById(R.id.responseText3);
         map=Master.map;
         accepteddevices=Master.accepteddevices;
 
@@ -88,10 +82,9 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
             digitClassifier1.initialize(1);
             digitClassifier2.initialize(2);
             digitClassifier3.initialize(3);
-            Log.e(TAG, "Setting up digit classifier.");
+            Log.e(TAG, "Set up the classifier.");
         }
-        catch (Exception e){
-            Log.e(TAG, "Error to setting up digit classifier.");
+        catch (Exception e)
         }
 
 
@@ -122,19 +115,13 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
 
     private void classifyDrawing(Bitmap bitmap) {
 
-        if (bitmap != null) {
-            Log.e(TAG, "Bitmap Here.");
-        }
-//        if (digitClassifier.isInitialized()) {
-//            Log.e(TAG, "Initialized Here.");
-//        }
+
         double[] arr = new double[10];
-//        arr[8] = 100;
         if ((bitmap != null)) {
             DigitClassifier digitClassifier = null;
             double max = 0.0;
             int index = 0;
-            for(int i = 0; i < 4; i++){ // Make it 4
+            for(int i = 0; i < 4; i++){
                 switch(i){
                     case 0:
                         digitClassifier = digitClassifier0;
@@ -162,32 +149,21 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
                         arr[j] = arr[j] + doubleArr[j] ;
                     }
 
-//                    maxValues[i] = maxIndex;
-//                String bitmap_str = BitMapToString(bitmap);
-//                Bitmap deccoded_bm = StringToBitMap(bitmap_str);
                     JSONObject jsonObject = new JSONObject();
                     try {
                         jsonObject.put("classify_image",i);
                         jsonObject.put("data",1);
                         jsonObject.put("quadrant", i);
                         jsonObject.put("mat_img", Arrays.toString(doubleArr));
-//                    jsonObject.put("matrix2", new JSONArray(matrixint2));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     String jsonString = jsonObject.toString();
-                    // System.out.println(i+"->"+jsonString);
 
 
                     gateway = new Gateway(map.get(accepteddevices.get(i)), Master.handler);
                     gateway.write(jsonString.getBytes());
-
-                    //gateway.write(BitMapToString(bitmap));
-                    //responseText.setText(digitClassifier.classify(preprocessImage(bitmap, 0)));
-                    Log.e(TAG, "Classifying TL.");
                 } catch (Exception e) {
-                    responseText.setText(e.toString());
-                    Log.e(TAG, "Error classifying TL.", e);
                 }
             }
             for(int j=0; j<10; j++){
@@ -197,50 +173,24 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
                 }
             }
             responseText.setText("Classification result: " + index);
-
-
-//            try {
-//                String bitmap_str = BitMapToString(preprocessImage(bitmap, 1));
-//                responseText1.setText(digitClassifier.classify(preprocessImage(bitmap, 1)));
-//                Log.e(TAG, "Classifying TR.");
-//            } catch (Exception e) {
-//                responseText1.setText(e.toString());
-//                Log.e(TAG, "Error classifying TR.", e);
-//            }
-//
-//            try {
-//                responseText2.setText(digitClassifier.classify(preprocessImage(bitmap, 2)));
-//                Log.e(TAG, "Classifying BL.");
-//            } catch (Exception e) {
-//                responseText2.setText(e.toString());
-//                Log.e(TAG, "Error classifying BL.", e);
-//            }
-//            try {
-//                responseText3.setText(digitClassifier.classify(preprocessImage(bitmap, 3)));
-//                Log.e(TAG, "Classifying BR.");
-//            } catch (Exception e) {
-//                responseText3.setText(e.toString());
-//                Log.e(TAG, "Error classifying BR.", e);
-//            }
         }
     }
 
     private Bitmap preprocessImage(Bitmap bitmap, int version) {
         int width = bitmap.getWidth()/2;
         int height = bitmap.getHeight()/2;
-//        Bitmap bnw = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
         Bitmap bnw = bitmap.copy(bitmap.getConfig(),true);
 
         int R, G, B;
-        int pixel;
+        int pixelValue;
         for (int x = 0; x < bitmap.getWidth(); x++) {
             for (int y = 0; y < bitmap.getHeight(); y++) {
                 // get pixel color
-                pixel = bitmap.getPixel(x, y);
+                pixelValue = bitmap.getPixel(x, y);
 
-                R = Color.red(pixel);
-                G = Color.green(pixel);
-                B = Color.blue(pixel);
+                R = Color.red(pixelValue);
+                G = Color.green(pixelValue);
+                B = Color.blue(pixelValue);
                 int gray = (int) (0.2989 * R + 0.5870 * G + 0.1140 * B);
                 if (gray < 128) {
                     gray = 255;
@@ -252,26 +202,23 @@ public class ImageDataActivity extends AppCompatActivity implements AdapterView.
                 bnw.setPixel(x, y, Color.rgb(gray, gray, gray));
             }
         }
-
-        Log.e(TAG, "Cropping.");
-        //0 = TL, 1 = TR, 2 = BL, 3 = BR
-        Bitmap cropped;
+        Bitmap croppedBitmap;
         switch(version){
             case 0:
-                cropped = Bitmap.createBitmap(bnw, 0, 0, width, height);
+                croppedBitmap = Bitmap.createBitmap(bnw, 0, 0, width, height);
                 break;
             case 1:
-                cropped = Bitmap.createBitmap(bnw, width, 0, width, height);
+                croppedBitmap = Bitmap.createBitmap(bnw, width, 0, width, height);
                 break;
             case 2:
-                cropped = Bitmap.createBitmap(bnw, 0, height, width, height);
+                croppedBitmap = Bitmap.createBitmap(bnw, 0, height, width, height);
                 break;
             default:
-                cropped = Bitmap.createBitmap(bnw, width, height, width, height);
+                croppedBitmap = Bitmap.createBitmap(bnw, width, height, width, height);
                 break;
         }
         Log.e(TAG, "Leaving Cropping.");
-        return cropped;
+        return croppedBitmap;
     }
 
 

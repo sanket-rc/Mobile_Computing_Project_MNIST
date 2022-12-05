@@ -37,13 +37,13 @@ public class MainActivity extends AppCompatActivity {
 
         master.setOnClickListener(v -> {
             intent[0] = new Intent(getApplicationContext(), Master.class);
-            Toast.makeText(getApplicationContext(), "Entering MASTER Mode.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Entering MASTER", Toast.LENGTH_SHORT).show();
             startActivity(intent[0]);
         });
 
         slave.setOnClickListener(v -> {
             intent[1] = new Intent(getApplicationContext(), Slave.class);
-            Toast.makeText(getApplicationContext(), "Entering SLAVE Mode.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Entering SLAVE.", Toast.LENGTH_SHORT).show();
             startActivity(intent[1]);
         });
 
